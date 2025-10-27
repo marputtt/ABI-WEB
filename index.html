@@ -1,0 +1,639 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    
+    <!-- Security Headers -->
+    <meta http-equiv="X-Content-Type-Options" content="nosniff">
+    <meta http-equiv="X-Frame-Options" content="DENY">
+    <meta http-equiv="X-XSS-Protection" content="1; mode=block">
+    <meta name="referrer" content="strict-origin-when-cross-origin">
+    
+    <!-- Content Security Policy -->
+    <meta http-equiv="Content-Security-Policy" content="
+        default-src 'self';
+        script-src 'self' 'unsafe-inline' https://cdn.tailwindcss.com https://unpkg.com https://cdn.jsdelivr.net;
+        style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://cdn.jsdelivr.net;
+        font-src 'self' https://fonts.gstatic.com;
+        img-src 'self' data: https: blob:;
+        connect-src 'self' https://api.yourbackend.com;
+        frame-src 'none';
+        object-src 'none';
+        base-uri 'self';
+        form-action 'self';
+    ">
+    
+    <title>ABI - Strategic Energy & Resource Solutions Across Indonesia</title>
+    
+    <!-- External Scripts with SRI (Subresource Integrity) -->
+    <script src="https://cdn.tailwindcss.com" crossorigin="anonymous"></script>
+    <link rel="stylesheet" href="styles.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Hedvig+Letters+Serif:wght@400&display=swap" rel="stylesheet">
+    <script defer src="https://unpkg.com/lucide@latest" crossorigin="anonymous"></script>
+    
+    <!-- Swiper.js CSS -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.css" crossorigin="anonymous" />
+    <!-- Swiper.js JavaScript -->
+    <script src="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.js" crossorigin="anonymous"></script>
+   
+</head>
+<body>
+    <!-- Navigation -->
+    <nav class="navbar">
+        <div class="nav-container">
+            <div class="nav-content">
+                <div class="logo-wrapper">
+                    <a href="/index.html" class="logo">
+                        <div class="logo-icon">
+                            <img src="Assets/Screenshot 2025-10-27 at 17.13.56.png" alt="Logo Icon">
+                        </div>
+                        <span class="logo-text">ABI GROUP </span>
+                    </a>
+                </div>
+                <div class="nav-menu">
+                    <a href="#services" class="nav-link">Services</a>
+                    <a href="#features" class="nav-link">Features</a>
+                    <a href="#how-it-works" class="nav-link">How it work</a>
+                    <a href="#contact" class="nav-link mobile-only-link">Get in touch</a>
+                </div>
+                <div class="nav-button desktop-only-nav">
+                    <button class="btn-primary group">
+                        <span class="btn-text">Get in touch</span>
+                        <span class="btn-arrow-circle">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <path d="M5 12h14"></path>
+                                <path d="m12 5 7 7-7 7"></path>
+                            </svg>
+                        </span>
+                    </button>
+                </div>
+                <button class="mobile-menu-toggle" aria-label="Toggle mobile menu">
+                    <span></span>
+                    <span></span>
+                    <span></span>
+                </button>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Hero Section -->
+    <section class="hero-section" role="banner">
+        <div class="hero-background-overlay"></div>
+        <div class="hero-container">
+            <div class="hero-content">
+                <div class="hero-text">
+                    <h1 class="hero-title">Strategic Energy & Resource Solutions Across Indonesia</h1>
+                    <p class="hero-description">
+                        PT. Anugerah Bumikarya Indonesia (ABI) connects policy access, industrial partnerships, and logistics networks to move critical energy and mineral resources across the nation.
+                    </p>
+                    <div class="hero-buttons">
+                        <button class="btn-secondary group" aria-label="Get in touch with ABI">
+                            <span class="btn-text">Get in touch</span>
+                            <span class="btn-arrow-circle">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                    <path d="M5 12h14"></path>
+                                    <path d="m12 5 7 7-7 7"></path>
+                                </svg>
+                            </span>
+                        </button>
+                        <a href="#services" class="btn-link-button" aria-label="Learn what we do">What we do</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="scroll-indicator" aria-hidden="true">
+            <div class="scroll-indicator-line"></div>
+        </div>
+    </section>
+
+    <!-- Partners Section -->
+    <section class="partners-section">
+        <div class="partners-container">
+            <p class="partners-text">We've partnered with:</p>
+            <div class="partners-slideshow">
+                <div class="partners-track">
+                    <div class="logo-item">
+                        <img src="Partners/Logo_of_SKK_Migas.svg.png" alt="SKK Migas">
+                    </div>
+                    <div class="logo-item">
+                        <img src="Partners/Petronas_2013_logo.svg.png" alt="Petronas">
+                    </div>
+                    <div class="logo-item">
+                        <img src="Partners/Semen_Tonasa_logo.png" alt="Semen Tonasa">
+                    </div>
+                    <div class="logo-item">
+                        <img src="Partners/cropped-logo-kubus.png" alt="Kubus">
+                    </div>
+                    <div class="logo-item">
+                        <img src="Partners/ks-1.png" alt="KS">
+                    </div>
+                    <div class="logo-item">
+                        <img src="Partners/images.png" alt="Partner">
+                    </div>
+                    <div class="logo-item">
+                        <img src="Partners/Screenshot 2025-10-27 at 17.14.48.png" alt="Partner">
+                    </div>
+                    <div class="logo-item">
+                        <img src="Partners/Screenshot 2025-10-27 at 17.31.57.png" alt="Partner">
+                    </div>
+                    <div class="logo-item">
+                        <img src="Partners/NYXGXSBYGCPYPE6Y5EMVRR442DE32S3U7D7DV56Z-6274656d.jpg" alt="Partner">
+                    </div>
+                    <!-- Duplicate for seamless loop -->
+                    <div class="logo-item">
+                        <img src="Partners/Logo_of_SKK_Migas.svg.png" alt="SKK Migas">
+                    </div>
+                    <div class="logo-item">
+                        <img src="Partners/Petronas_2013_logo.svg.png" alt="Petronas">
+                    </div>
+                    <div class="logo-item">
+                        <img src="Partners/Semen_Tonasa_logo.png" alt="Semen Tonasa">
+                    </div>
+                    <div class="logo-item">
+                        <img src="Partners/cropped-logo-kubus.png" alt="Kubus">
+                    </div>
+                    <div class="logo-item">
+                        <img src="Partners/ks-1.png" alt="KS">
+                    </div>
+                    <div class="logo-item">
+                        <img src="Partners/images.png" alt="Partner">
+                    </div>
+                    <div class="logo-item">
+                        <img src="Partners/Screenshot 2025-10-27 at 17.14.48.png" alt="Partner">
+                    </div>
+                    <div class="logo-item">
+                        <img src="Partners/Screenshot 2025-10-27 at 17.31.57.png" alt="Partner">
+                    </div>
+                    <div class="logo-item">
+                        <img src="Partners/NYXGXSBYGCPYPE6Y5EMVRR442DE32S3U7D7DV56Z-6274656d.jpg" alt="Partner">
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Services Section -->
+    <section id="services" class="services-section">
+        <div class="container">
+            <div class="section-header">
+                <div class="section-tag">Services</div>
+                <h2 class="section-title">Reliable expertise driving Indonesia’s industrial success</h2>
+            </div>
+            <div class="services-slideshow-wrapper">
+                <div class="swiper servicesSwiper">
+                    <div class="swiper-wrapper">
+                        <div class="swiper-slide">
+                            <div class="service-card">
+                                <div class="service-card-image">
+                                    <img src="Services/francisco-kemeny-xoezaq6Htwo-unsplash.jpg" alt="Renewable & Strategic Investments">
+                                </div>
+                                <div class="service-card-content">
+                                    <h3>Renewable & Strategic Investments</h3>
+                                    <p>ABI actively develops and invests in renewable energy and sustainable infrastructure, aligning with Indonesia’s long-term green transition.
+                                    </p>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="swiper-slide">
+                            <div class="service-card">
+                                <div class="service-card-image">
+                                    <img src="Services/10184.jpg" alt="Minerals & Mining">
+                                </div>
+                                <div class="service-card-content">
+                                    <h3>Minerals & Mining</h3>
+                                    <p>We structure and support coal sales for major producers to supplying leading cement and industrial clients nationwide.</p>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="swiper-slide">
+                            <div class="service-card">
+                                <div class="service-card-image">
+                                    <img src="Services/georg-eiermann-Cjro-J9z6ZA-unsplash.jpg" alt="Oil & Gas Distribution">
+                                </div>
+                                <div class="service-card-content">
+                                    <h3>Oil & Gas Distribution</h3>
+                                    <p>Through subsidiaries like PT Petrobas Indonesia, PT Putra Perdana Perkasa, and PT Great Rivers Repapesi, ABI handles fuel supply, condensate transport, and offshore SBM maintenance serving Indonesia’s refinery and industrial sectors. </p>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="swiper-slide">
+                            <div class="service-card">
+                                <div class="service-card-image">
+                                    <img src="Services/hairullah-ponichan-8BEQmNaHR90-unsplash.jpg" alt="Gas & Energy Infrastructure">
+                                </div>
+                                <div class="service-card-content">
+                                    <h3>Gas & Energy Infrastructure</h3>
+                                    <p>ABI helps improving energy access for industries while supporting the nation’s transition to cleaner fuel systems.</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <!-- Swipe Indicator for Mobile - Moved outside slideshow wrapper -->
+            <div class="swipe-indicator mobile-only">
+                <svg width="40" height="40" viewBox="0 0 40 40" fill="none">
+                    <path d="M15 20H25M25 20L20 15M25 20L20 25" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                </svg>
+                <span>Swipe to explore</span>
+                <svg width="40" height="40" viewBox="0 0 40 40" fill="none">
+                    <path d="M15 20H25M25 20L20 15M25 20L20 25" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                </svg>
+            </div>
+        </div>
+    </section>
+
+    <!-- Features Section -->
+    <section id="features" class="features-section">
+        <div class="container">
+            <div class="section-header">
+                <div class="section-tag">Features</div>
+                <h2 class="section-title">Key benefits that set us apart from others</h2>
+            </div>
+            <div class="features-grid">
+                <div class="feature-card">
+                    <div class="feature-icon">
+                        <svg width="22" height="22" viewBox="0 0 24 24" fill="none">
+                            <path d="M17 21V19C17 17.9391 16.5786 16.9217 15.8284 16.1716C15.0783 15.4214 14.0609 15 13 15H5C3.93913 15 2.92172 15.4214 2.17157 16.1716C1.42143 16.9217 1 17.9391 1 19V21" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                            <path d="M9 11C11.2091 11 13 9.20914 13 7C13 4.79086 11.2091 3 9 3C6.79086 3 5 4.79086 5 7C5 9.20914 6.79086 11 9 11Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                            <path d="M23 21V19C22.9993 18.1137 22.7044 17.2528 22.1614 16.5523C21.6184 15.8519 20.8581 15.3516 20 15.13" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                            <path d="M16 3.13C16.8604 3.35031 17.623 3.85071 18.1676 4.55232C18.7122 5.25392 19.0078 6.11683 19.0078 7.005C19.0078 7.89317 18.7122 8.75608 18.1676 9.45768C17.623 10.1593 16.8604 10.6597 16 10.88" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                        </svg>
+                    </div>
+                    <h3 class="feature-title">Strategic Access</h3>
+                    <p class="feature-description">Direct collaboration with policymakers and industry leaders ensures speed and compliance in every operation.</p>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-icon">
+                        <svg width="22" height="22" viewBox="0 0 24 24" fill="none">
+                            <path d="M12 2L2 7L12 12L22 7L12 2Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                            <path d="M2 17L12 22L22 17" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                            <path d="M2 12L12 17L22 12" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                        </svg>
+                    </div>
+                    <h3 class="feature-title">Integrated Network</h3>
+                    <p class="feature-description">End-to-end capability — from mining, refining, to distribution — ensuring seamless supply chains.</p>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-icon">
+                        <svg width="22" height="22" viewBox="0 0 24 24" fill="none">
+                            <path d="M13 2L3 14H12L11 22L21 10H12L13 2Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                        </svg>
+                    </div>
+                    <h3 class="feature-title">Execution Agility</h3>
+                    <p class="feature-description">Focused decision-making and trusted partnerships allow ABI to move where larger entities cannot.</p>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-icon">
+                        <svg width="22" height="22" viewBox="0 0 24 24" fill="none">
+                            <path d="M20 21V19C20 17.9391 19.5786 16.9217 18.8284 16.1716C18.0783 15.4214 17.0609 15 16 15H8C6.93913 15 5.92172 15.4214 5.17157 16.1716C4.42143 16.9217 4 17.9391 4 19V21" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                            <circle cx="12" cy="7" r="4" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                            <path d="M22 11L20 13L18 11" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                            <path d="M6 11L4 13L2 11" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                        </svg>
+                    </div>
+                    <h3 class="feature-title">Trusted Partnerships</h3>
+                    <p class="feature-description">Long-term collaboration with leading industrial players in energy, construction, and commodities.</p>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-icon">
+                        <svg width="22" height="22" viewBox="0 0 24 24" fill="none">
+                            <path d="M12 22C17.5228 22 22 17.5228 22 12C22 6.47715 17.5228 2 12 2C6.47715 2 2 6.47715 2 12C2 17.5228 6.47715 22 12 22Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                            <path d="M12 6V12L16 14" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                            <path d="M2 12C2 12 5 7 12 7C19 7 22 12 22 12" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                            <path d="M12 2C13.5 4 14 8 14 12C14 16 13.5 20 12 22" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                            <path d="M12 2C10.5 4 10 8 10 12C10 16 10.5 20 12 22" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                        </svg>
+                    </div>
+                    <h3 class="feature-title">Sustainable Commitment</h3>
+                    <p class="feature-description">Gradual expansion into renewables and cleaner fuel infrastructure for future resilience.</p>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-icon">
+                        <svg width="22" height="22" viewBox="0 0 24 24" fill="none">
+                            <path d="M9 12L11 14L15 10M21 12C21 16.9706 16.9706 21 12 21C7.02944 21 3 16.9706 3 12C3 7.02944 7.02944 3 12 3C16.9706 3 21 7.02944 21 12Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                        </svg>
+                    </div>
+                    <h3 class="feature-title">Operational Excellence</h3>
+                    <p class="feature-description">Experienced leadership and a performance-driven structure guarantee reliability and measurable results.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- How It Works Section -->
+    <section id="how-it-works" class="how-it-works-section">
+        <div class="container">
+            <div class="section-header">
+                <div class="section-tag">How it works</div>
+                <h2 class="section-title">A proven process to achieve your biggest goals</h2>
+              
+            </div>
+            <div class="steps-container">
+                <div class="step">
+                    <div class="step-image">
+                        <img src="Services/georg-eiermann-Cjro-J9z6ZA-unsplash.jpg" alt="Policy & Market Insight">
+                    </div>
+                    <div class="step-timeline">
+                        <div class="timeline-line"></div>
+                        <div class="timeline-dot">
+                            <span>01</span>
+                        </div>
+                        <div class="timeline-line"></div>
+                    </div>
+                    <div class="step-content">
+                        <h3>Policy & Market Insight</h3>
+                        <p>Leveraging ABI's strong relationships with decision-makers to anticipate industrial and regulatory shifts.</p>
+                    </div>
+                </div>
+                <div class="step">
+                    <div class="step-content">
+                        <h3>Structured Partnership</h3>
+                        <p>Building commercial frameworks with mining, logistics, and fuel partners to meet market needs.</p>
+                    </div>
+                    <div class="step-timeline">
+                        <div class="timeline-line"></div>
+                        <div class="timeline-dot">
+                            <span>02</span>
+                        </div>
+                        <div class="timeline-line"></div>
+                    </div>
+                    <div class="step-image">
+                        <img src="Services/francisco-kemeny-xoezaq6Htwo-unsplash.jpg" alt="Structured Partnership">
+                    </div>
+                </div>
+                <div class="step">
+                    <div class="step-image">
+                        <img src="Services/10184.jpg" alt="Execution & Delivery">
+                    </div>
+                    <div class="step-timeline">
+                        <div class="timeline-line"></div>
+                        <div class="timeline-dot">
+                            <span>03</span>
+                        </div>
+                        <div class="timeline-line"></div>
+                    </div>
+                    <div class="step-content">
+                        <h3>Execution & Delivery</h3>
+                        <p>Deploying integrated upstream–downstream operations — from coal extraction to refinery delivery — with transparent and fast execution.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+
+
+    <!-- Team Section -->
+    <section id="team" class="team-section">
+        <div class="container">
+            <div class="section-header">
+                <div class="section-tag">Our Navigators</div>
+                <h2 class="section-title">Meet the Navigators Behind ABI's Vision</h2>
+            </div>
+            <div class="team-grid">
+                <div class="team-member">
+                    <img src="MEMBER/Screenshot 2025-10-27 at 18.27.25.png" alt="Medina Rahma Putri">
+                    <h3>Medina Rahma Putri</h3>
+                    <p>Director</p>
+                </div>
+                <div class="team-member">
+                    <img src="MEMBER/Screenshot 2025-10-27 at 18.27.37.png" alt="Teuku Agassi Revano Harsya">
+                    <h3>Teuku Agassi Revano Harsya</h3>
+                    <p>Director</p>
+                </div>
+                <div class="team-member">
+                    <img src="MEMBER/Screenshot 2025-10-27 at 18.27.49.png" alt="Yandhika P Sabaruddin">
+                    <h3>Yandhika P Sabaruddin</h3>
+                    <p>Chairman</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- FAQ Section -->
+    <section class="faq-section">
+        <div class="container">
+            <div class="section-header">
+                <div class="section-tag">FAQ</div>
+                <h2 class="section-title">Frequently Asked Questions</h2>
+            </div>
+            <div class="faq-list">
+                <div class="faq-item">
+                    <div class="faq-question">
+                        <h3>What industries does ABI serve?</h3>
+                        <span class="faq-toggle">+</span>
+                    </div>
+                    <div class="faq-answer">
+                        <p>Energy, Oil & Gas, Minerals & Mining, and Renewables.</p>
+                    </div>
+                </div>
+                <div class="faq-item">
+                    <div class="faq-question">
+                        <h3>Where does ABI operate?</h3>
+                        <span class="faq-toggle">+</span>
+                    </div>
+                    <div class="faq-answer">
+                        <p>Across key Indonesian regions — from South Kalimantan to Central and East Java.</p>
+                    </div>
+                </div>
+                <div class="faq-item">
+                    <div class="faq-question">
+                        <h3>What makes ABI different?</h3>
+                        <span class="faq-toggle">+</span>
+                    </div>
+                    <div class="faq-answer">
+                        <p>Strategic policy access, execution speed, and a proven track record across multiple resource sectors.</p>
+                    </div>
+                </div>
+                <div class="faq-item">
+                    <div class="faq-question">
+                        <h3>Is ABI open to partnerships?</h3>
+                        <span class="faq-toggle">+</span>
+                    </div>
+                    <div class="faq-answer">
+                        <p>Yes. ABI actively collaborates with investors, suppliers, and government-linked projects nationwide.</p>
+                    </div>
+                </div>
+                <div class="faq-item">
+                    <div class="faq-question">
+                        <h3>Does ABI operate internationally?</h3>
+                        <span class="faq-toggle">+</span>
+                    </div>
+                    <div class="faq-answer">
+                        <p>Currently focused on Indonesia, with future plans to expand into regional markets through joint ventures.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Contact Section -->
+    <section id="contact" class="contact-section">
+        <div class="container">
+            <div class="contact-content">
+                <div class="contact-text">
+                    <div class="section-tag white">Contact us</div>
+                    <h2 class="section-title white">Get in touch with our team</h2>
+                    <form class="contact-form" id="contactForm" novalidate>
+                        <!-- CSRF Token (will be generated by backend) -->
+                        <input type="hidden" name="csrf_token" id="csrfToken" value="">
+                        
+                        <!-- Honeypot field for bot protection (hidden from users) -->
+                        <input type="text" name="website" id="honeypot" style="display:none" tabindex="-1" autocomplete="off">
+                        
+                        <div class="form-row">
+                            <div class="form-group">
+                                <input 
+                                    type="text" 
+                                    name="firstName" 
+                                    id="firstName"
+                                    placeholder="First Name" 
+                                    required
+                                    minlength="2"
+                                    maxlength="50"
+                                    pattern="[A-Za-z\s\-']+"
+                                    autocomplete="given-name"
+                                    aria-label="First Name"
+                                    data-validate="name">
+                                <span class="error-message" role="alert"></span>
+                            </div>
+                            <div class="form-group">
+                                <input 
+                                    type="text" 
+                                    name="lastName" 
+                                    id="lastName"
+                                    placeholder="Last Name" 
+                                    required
+                                    minlength="2"
+                                    maxlength="50"
+                                    pattern="[A-Za-z\s\-']+"
+                                    autocomplete="family-name"
+                                    aria-label="Last Name"
+                                    data-validate="name">
+                                <span class="error-message" role="alert"></span>
+                            </div>
+                        </div>
+                        <div class="form-row">
+                            <div class="form-group">
+                                <input 
+                                    type="email" 
+                                    name="email" 
+                                    id="email"
+                                    placeholder="Email" 
+                                    required
+                                    maxlength="254"
+                                    autocomplete="email"
+                                    aria-label="Email"
+                                    data-validate="email">
+                                <span class="error-message" role="alert"></span>
+                            </div>
+                            <div class="form-group">
+                                <input 
+                                    type="tel" 
+                                    name="phone" 
+                                    id="phone"
+                                    placeholder="Phone" 
+                                    required
+                                    minlength="10"
+                                    maxlength="15"
+                                    pattern="[\d\s\-\+\(\)]+"
+                                    autocomplete="tel"
+                                    aria-label="Phone"
+                                    data-validate="phone">
+                                <span class="error-message" role="alert"></span>
+                            </div>
+                        </div>
+                        <div class="form-group full-width">
+                            <textarea 
+                                name="message" 
+                                id="message"
+                                placeholder="Message" 
+                                rows="4" 
+                                required
+                                minlength="10"
+                                maxlength="1000"
+                                aria-label="Message"
+                                data-validate="message"></textarea>
+                            <span class="error-message" role="alert"></span>
+                        </div>
+                        
+                        <!-- Form Status Messages -->
+                        <div class="form-status" role="status" aria-live="polite"></div>
+                        
+                        <button type="submit" class="btn-primary group" id="submitBtn">
+                            <span class="btn-text">Send Message</span>
+                            <span class="btn-arrow-circle white">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                    <path d="M5 12h14"></path>
+                                    <path d="m12 5 7 7-7 7"></path>
+                                </svg>
+                            </span>
+                        </button>
+                    </form>
+                </div>
+                <div class="contact-image">
+                    <img src="https://framerusercontent.com/images/Rfi8Dzlz5SKxegez4irAvX21mk.jpg" alt="Contact Us">
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="footer-container">
+            <div class="footer-content">
+                <div class="footer-brand">
+                    <a href="/" class="footer-logo">
+                        <div class="logo-icon">
+                            <img src="Assets/Screenshot 2025-10-27 at 17.13.56.png" alt="ABI Logo">
+                        </div>
+                        <span class="logo-text">ABI GROUP</span>
+                    </a>
+                    <p class="footer-description">
+                        PT. Anugerah Bumikarya Indonesia (ABI) provides integrated energy, oil & gas, and mineral solutions that connect policy, partners, and operations across Indonesia.
+                    </p>
+                    
+                </div>
+                <div class="footer-links-grid">
+                    <div class="footer-links-column">
+                        <h4 class="footer-links-title">Menu</h4>
+                        <ul class="footer-links">
+                            <li><a href="#services" class="footer-link">Services</a></li>
+                            <li><a href="#features" class="footer-link">Features</a></li>
+                            <li><a href="#how-it-works" class="footer-link">How it work</a></li>
+                            <li><a href="#team" class="footer-link">Team</a></li>
+                            
+                        </ul>
+                    </div>
+                    <div class="footer-links-column">
+                        <h4 class="footer-links-title">Follow us:</h4>
+                        <ul class="footer-links">
+                            <li><a href="https://www.instagram.com/" class="footer-link" target="_blank">Instagram</a></li>
+                            <li><a href="https://www.linkedin.com/" class="footer-link" target="_blank">Linkedin</a></li>
+                            <li><a href="https://x.com/" class="footer-link" target="_blank">Twitter</a></li>
+                        </ul>
+                    </div>
+                    <div class="footer-links-column contact-column">
+                        <h4 class="footer-links-title">Contact</h4>
+                        <ul class="footer-links">
+                            <li><a href="javascript:void(0)" class="footer-link email-link" data-email="contact@bumikarya.co.id">contact@bumikarya.co.id</a></li>
+                            <li><a href="javascript:void(0)" class="footer-link phone-link" data-phone="+123456789">+123 456 789</a></li>
+                            <li><a href="https://maps.app.goo.gl/8tjp7ABVMya1dBEE8" class="footer-link" target="_blank" rel="noopener noreferrer">Jakarta, Indonesia</a></li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+            <div class="footer-bottom">
+                <p class="copyright">copyright©2025 PT. Anugerah Bumikarya Indonesia. All Rights Reserved.</p>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Load Secure JavaScript -->
+    <script src="script-secure.js"></script>
+</body>
+</html>
