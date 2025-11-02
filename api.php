@@ -2,27 +2,38 @@
 /**
  * ABI Contact Form API
  * Secure backend with validation, sanitization, and rate limiting
- * Version: 1.0.0
+ * Version: 2.0.0 - Security Hardened
  */
 
+// Load configuration
+$config = [];
+if (file_exists(__DIR__ . '/config.php')) {
+    $config = require __DIR__ . '/config.php';
+}
+
 // Start session for CSRF protection
-session_start();
+session_start([
+    'cookie_httponly' => true,
+    'cookie_secure' => (!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off'),
+    'cookie_samesite' => 'Strict'
+]);
 
 // Security Headers
 header('X-Content-Type-Options: nosniff');
 header('X-Frame-Options: DENY');
 header('X-XSS-Protection: 1; mode=block');
-header('Strict-Transport-Security: max-age=31536000; includeSubDomains');
-header('Content-Security-Policy: default-src \'self\'');
+header('Strict-Transport-Security: max-age=31536000; includeSubDomains; preload');
+header('Referrer-Policy: strict-origin-when-cross-origin');
+header('Permissions-Policy: geolocation=(), microphone=(), camera=()');
 header('Content-Type: application/json; charset=utf-8');
 
-// CORS Headers (adjust domain as needed)
-$allowed_origins = ['http://localhost', 'https://yourdomain.com'];
+// CORS Headers - Load from config
+$allowed_origins = $config['api']['allowed_origins'] ?? ['http://localhost', 'https://yourdomain.com'];
 $origin = $_SERVER['HTTP_ORIGIN'] ?? '';
 
 if (in_array($origin, $allowed_origins)) {
     header("Access-Control-Allow-Origin: $origin");
-    header('Access-Control-Allow-Methods: POST, OPTIONS');
+    header('Access-Control-Allow-Methods: GET, POST, OPTIONS');
     header('Access-Control-Allow-Headers: Content-Type, X-CSRF-Token');
     header('Access-Control-Allow-Credentials: true');
 }
@@ -33,24 +44,23 @@ if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
     exit();
 }
 
-// Only allow POST requests
-if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
-    http_response_code(405);
-    echo json_encode(['error' => 'Method not allowed']);
-    exit();
-}
-
-// Configuration
-define('RATE_LIMIT_MAX_ATTEMPTS', 5); // Max submissions per time window
-define('RATE_LIMIT_WINDOW', 3600); // 1 hour in seconds
-define('MIN_TIME_BETWEEN_SUBMISSIONS', 10); // Seconds (anti-spam)
+// Configuration - Use config.php or fallback to defaults
+define('RATE_LIMIT_MAX_ATTEMPTS', $config['security']['rate_limit']['max_attempts'] ?? 5);
+define('RATE_LIMIT_WINDOW', $config['security']['rate_limit']['window'] ?? 3600);
+define('MIN_TIME_BETWEEN_SUBMISSIONS', $config['security']['rate_limit']['min_time'] ?? 10);
 define('MAX_INPUT_LENGTH', 1000);
-define('LOG_FILE', __DIR__ . '/logs/security.log');
+define('LOG_FILE', $config['logging']['security_file'] ?? __DIR__ . '/logs/security.log');
+define('RATE_LIMIT_DIR', __DIR__ . '/logs/rate_limits/');
 
-// Email configuration (use environment variables in production)
-define('RECIPIENT_EMAIL', 'contact@bumikarya.co.id');
-define('EMAIL_FROM', 'noreply@bumikarya.co.id');
-define('EMAIL_FROM_NAME', 'ABI Contact Form');
+// Email configuration from config.php
+define('RECIPIENT_EMAIL', $config['mail']['to'] ?? 'contact@bumikarya.co.id');
+define('EMAIL_FROM', $config['mail']['from']['address'] ?? 'noreply@bumikarya.co.id');
+define('EMAIL_FROM_NAME', $config['mail']['from']['name'] ?? 'ABI Contact Form');
+
+// Ensure rate limit directory exists
+if (!is_dir(RATE_LIMIT_DIR)) {
+    mkdir(RATE_LIMIT_DIR, 0750, true);
+}
 
 /**
  * Generate CSRF Token
@@ -82,73 +92,81 @@ function validateCSRFToken($token) {
 }
 
 /**
- * Rate Limiting
+ * Get rate limit file path based on IP and User-Agent
+ */
+function getRateLimitFile($ip, $user_agent) {
+    $identifier = md5($ip . '|' . $user_agent);
+    return RATE_LIMIT_DIR . 'rate_' . $identifier . '.json';
+}
+
+/**
+ * Rate Limiting - Filesystem-based (IP + User-Agent keyed)
  */
 function checkRateLimit() {
     $ip = $_SERVER['REMOTE_ADDR'] ?? 'unknown';
-    $rate_key = 'rate_limit_' . md5($ip);
+    $user_agent = $_SERVER['HTTP_USER_AGENT'] ?? 'unknown';
+    $rate_file = getRateLimitFile($ip, $user_agent);
     
-    if (!isset($_SESSION[$rate_key])) {
-        $_SESSION[$rate_key] = [];
+    $now = time();
+    $attempts = [];
+    
+    // Read existing attempts
+    if (file_exists($rate_file)) {
+        $content = file_get_contents($rate_file);
+        $attempts = json_decode($content, true) ?? [];
+        
+        // Clean old attempts outside the time window
+        $attempts = array_filter($attempts, function($timestamp) use ($now) {
+            return ($now - $timestamp) < RATE_LIMIT_WINDOW;
+        });
     }
     
-    // Clean old attempts
-    $_SESSION[$rate_key] = array_filter(
-        $_SESSION[$rate_key],
-        function($timestamp) {
-            return (time() - $timestamp) < RATE_LIMIT_WINDOW;
-        }
-    );
-    
     // Check if rate limit exceeded
-    if (count($_SESSION[$rate_key]) >= RATE_LIMIT_MAX_ATTEMPTS) {
+    if (count($attempts) >= RATE_LIMIT_MAX_ATTEMPTS) {
+        logSecurity('Rate limit exceeded', [
+            'ip' => $ip,
+            'user_agent' => $user_agent,
+            'attempts' => count($attempts)
+        ]);
         return false;
     }
     
     // Check minimum time between submissions
-    if (!empty($_SESSION[$rate_key])) {
-        $last_submission = end($_SESSION[$rate_key]);
-        if ((time() - $last_submission) < MIN_TIME_BETWEEN_SUBMISSIONS) {
+    if (!empty($attempts)) {
+        $last_submission = max($attempts);
+        if (($now - $last_submission) < MIN_TIME_BETWEEN_SUBMISSIONS) {
+            logSecurity('Minimum time between submissions not met', [
+                'ip' => $ip,
+                'time_since_last' => $now - $last_submission
+            ]);
             return false;
         }
     }
     
     // Add current attempt
-    $_SESSION[$rate_key][] = time();
+    $attempts[] = $now;
+    
+    // Save to file
+    file_put_contents($rate_file, json_encode($attempts), LOCK_EX);
+    
     return true;
 }
 
 /**
- * Sanitize Input
+ * Canonical Server-Side Input Validation (replaces client-side sanitization)
  */
-function sanitizeInput($data, $type = 'text') {
-    // Remove any NULL bytes
-    $data = str_replace(chr(0), '', $data);
-    
-    // Trim whitespace
-    $data = trim($data);
-    
-    // Type-specific sanitization
-    switch ($type) {
-        case 'email':
-            return filter_var($data, FILTER_SANITIZE_EMAIL);
-        case 'phone':
-            return preg_replace('/[^0-9+\-\s\(\)]/', '', $data);
-        case 'name':
-            return preg_replace('/[^A-Za-z\s\-\']/', '', $data);
-        default:
-            return htmlspecialchars($data, ENT_QUOTES | ENT_HTML5, 'UTF-8');
-    }
-}
-
-/**
- * Validate Input
- */
-function validateInput($data, $rules) {
+function validateInputCanonical($data, $rules) {
     $errors = [];
+    $sanitized = [];
     
     foreach ($rules as $field => $rule) {
         $value = $data[$field] ?? '';
+        
+        // Remove NULL bytes
+        $value = str_replace(chr(0), '', $value);
+        
+        // Trim whitespace
+        $value = trim($value);
         
         // Required check
         if (isset($rule['required']) && $rule['required'] && empty($value)) {
@@ -156,7 +174,10 @@ function validateInput($data, $rules) {
             continue;
         }
         
-        if (empty($value)) continue;
+        if (empty($value)) {
+            $sanitized[$field] = '';
+            continue;
+        }
         
         // Length check
         if (isset($rule['minLength']) && mb_strlen($value) < $rule['minLength']) {
@@ -167,27 +188,40 @@ function validateInput($data, $rules) {
             $errors[$field] = $rule['label'] . ' must not exceed ' . $rule['maxLength'] . ' characters';
         }
         
-        // Type-specific validation
+        // Type-specific validation and sanitization
         switch ($rule['type']) {
             case 'email':
+                $value = filter_var($value, FILTER_SANITIZE_EMAIL);
                 if (!filter_var($value, FILTER_VALIDATE_EMAIL)) {
                     $errors[$field] = 'Please enter a valid email address';
                 }
                 break;
+                
             case 'phone':
+                // Allow only digits, spaces, +, -, (, )
+                $value = preg_replace('/[^0-9+\-\s\(\)]/', '', $value);
                 if (!preg_match('/^[\d\s\-\+\(\)]{10,15}$/', $value)) {
                     $errors[$field] = 'Please enter a valid phone number';
                 }
                 break;
+                
             case 'name':
+                // Allow only letters, spaces, hyphens, apostrophes
+                $value = preg_replace('/[^A-Za-z\s\-\']/', '', $value);
                 if (!preg_match('/^[A-Za-z\s\-\']{2,50}$/', $value)) {
                     $errors[$field] = 'Please enter a valid ' . strtolower($rule['label']);
                 }
                 break;
+                
+            default:
+                // HTML escape for text fields
+                $value = htmlspecialchars($value, ENT_QUOTES | ENT_HTML5, 'UTF-8');
         }
+        
+        $sanitized[$field] = $value;
     }
     
-    return $errors;
+    return ['errors' => $errors, 'sanitized' => $sanitized];
 }
 
 /**
@@ -205,7 +239,11 @@ function checkForSpam($data) {
         '/\[url=/i',
         '/\[link=/i',
         '/<a href=/i',
-        '/\b(viagra|cialis|casino|poker)\b/i',
+        '/<script/i',
+        '/javascript:/i',
+        '/onerror=/i',
+        '/onclick=/i',
+        '/\b(viagra|cialis|casino|poker|loan|mortgage)\b/i',
         '/http.*http.*http/i' // Multiple URLs
     ];
     
@@ -221,36 +259,74 @@ function checkForSpam($data) {
 }
 
 /**
- * Security Logging
+ * Enhanced Security Logging with Anomaly Detection
  */
 function logSecurity($message, $data = []) {
     $log_dir = dirname(LOG_FILE);
     if (!is_dir($log_dir)) {
-        mkdir($log_dir, 0755, true);
+        mkdir($log_dir, 0750, true);
     }
     
     $timestamp = date('Y-m-d H:i:s');
     $ip = $_SERVER['REMOTE_ADDR'] ?? 'unknown';
     $user_agent = $_SERVER['HTTP_USER_AGENT'] ?? 'unknown';
+    $request_method = $_SERVER['REQUEST_METHOD'] ?? 'unknown';
+    $request_uri = $_SERVER['REQUEST_URI'] ?? 'unknown';
     
     $log_entry = sprintf(
-        "[%s] IP: %s | Message: %s | User-Agent: %s | Data: %s\n",
+        "[%s] IP: %s | Method: %s | URI: %s | Message: %s | User-Agent: %s | Data: %s\n",
         $timestamp,
         $ip,
+        $request_method,
+        $request_uri,
         $message,
         $user_agent,
         json_encode($data)
     );
     
     error_log($log_entry, 3, LOG_FILE);
+    
+    // Anomaly detection - check for repeated failures
+    static $failure_counts = [];
+    $failure_key = $ip . '|' . $message;
+    
+    if (strpos($message, 'failed') !== false || 
+        strpos($message, 'Rate limit') !== false ||
+        strpos($message, 'Honeypot') !== false) {
+        
+        $failure_counts[$failure_key] = ($failure_counts[$failure_key] ?? 0) + 1;
+        
+        // Alert if multiple failures from same IP
+        if ($failure_counts[$failure_key] >= 3) {
+            $alert_log = $log_dir . '/alerts.log';
+            $alert_entry = sprintf(
+                "[%s] ALERT: Multiple failures detected | IP: %s | Pattern: %s | Count: %d\n",
+                $timestamp,
+                $ip,
+                $message,
+                $failure_counts[$failure_key]
+            );
+            error_log($alert_entry, 3, $alert_log);
+        }
+    }
 }
 
 /**
- * Send Email
+ * Send Email with Server-Side Sanitized Data Only
  */
-function sendEmail($data) {
+function sendEmail($sanitized_data) {
     $to = RECIPIENT_EMAIL;
     $subject = 'New Contact Form Submission from ABI Website';
+    
+    // All data is already sanitized by validateInputCanonical
+    // Double-check HTML escaping for email template
+    $safe_data = [
+        'firstName' => htmlspecialchars($sanitized_data['firstName'], ENT_QUOTES | ENT_HTML5, 'UTF-8'),
+        'lastName' => htmlspecialchars($sanitized_data['lastName'], ENT_QUOTES | ENT_HTML5, 'UTF-8'),
+        'email' => htmlspecialchars($sanitized_data['email'], ENT_QUOTES | ENT_HTML5, 'UTF-8'),
+        'phone' => htmlspecialchars($sanitized_data['phone'], ENT_QUOTES | ENT_HTML5, 'UTF-8'),
+        'message' => nl2br(htmlspecialchars($sanitized_data['message'], ENT_QUOTES | ENT_HTML5, 'UTF-8'))
+    ];
     
     $message = "
     <html>
@@ -273,19 +349,19 @@ function sendEmail($data) {
             <div class='content'>
                 <div class='field'>
                     <div class='label'>Name:</div>
-                    <div class='value'>" . htmlspecialchars($data['firstName'] . ' ' . $data['lastName']) . "</div>
+                    <div class='value'>{$safe_data['firstName']} {$safe_data['lastName']}</div>
                 </div>
                 <div class='field'>
                     <div class='label'>Email:</div>
-                    <div class='value'>" . htmlspecialchars($data['email']) . "</div>
+                    <div class='value'>{$safe_data['email']}</div>
                 </div>
                 <div class='field'>
                     <div class='label'>Phone:</div>
-                    <div class='value'>" . htmlspecialchars($data['phone']) . "</div>
+                    <div class='value'>{$safe_data['phone']}</div>
                 </div>
                 <div class='field'>
                     <div class='label'>Message:</div>
-                    <div class='value'>" . nl2br(htmlspecialchars($data['message'])) . "</div>
+                    <div class='value'>{$safe_data['message']}</div>
                 </div>
                 <div class='field'>
                     <div class='label'>Submitted:</div>
@@ -293,7 +369,7 @@ function sendEmail($data) {
                 </div>
                 <div class='field'>
                     <div class='label'>IP Address:</div>
-                    <div class='value'>" . htmlspecialchars($_SERVER['REMOTE_ADDR']) . "</div>
+                    <div class='value'>" . htmlspecialchars($_SERVER['REMOTE_ADDR'] ?? 'unknown', ENT_QUOTES | ENT_HTML5, 'UTF-8') . "</div>
                 </div>
             </div>
         </div>
@@ -305,11 +381,28 @@ function sendEmail($data) {
         'MIME-Version: 1.0',
         'Content-type: text/html; charset=utf-8',
         'From: ' . EMAIL_FROM_NAME . ' <' . EMAIL_FROM . '>',
-        'Reply-To: ' . $data['email'],
+        'Reply-To: ' . $safe_data['email'],
         'X-Mailer: PHP/' . phpversion()
     ];
     
     return mail($to, $subject, $message, implode("\r\n", $headers));
+}
+
+// Handle GET requests for CSRF token
+if ($_SERVER['REQUEST_METHOD'] === 'GET') {
+    // Ensure JSON content type
+    header('Content-Type: application/json; charset=utf-8');
+    $token = generateCSRFToken();
+    echo json_encode(['csrf_token' => $token], JSON_UNESCAPED_SLASHES);
+    logSecurity('CSRF token requested', ['ip' => $_SERVER['REMOTE_ADDR'] ?? 'unknown']);
+    exit();
+}
+
+// Only allow POST requests for form submissions
+if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+    http_response_code(405);
+    echo json_encode(['error' => 'Method not allowed']);
+    exit();
 }
 
 // Main Processing
@@ -325,7 +418,7 @@ try {
     // Validate CSRF Token
     $csrf_token = $input['csrf_token'] ?? '';
     if (!validateCSRFToken($csrf_token)) {
-        logSecurity('CSRF token validation failed', $input);
+        logSecurity('CSRF token validation failed', ['ip' => $_SERVER['REMOTE_ADDR'] ?? 'unknown']);
         http_response_code(403);
         echo json_encode(['error' => 'Invalid security token. Please refresh the page.']);
         exit();
@@ -333,7 +426,6 @@ try {
     
     // Check rate limiting
     if (!checkRateLimit()) {
-        logSecurity('Rate limit exceeded', $input);
         http_response_code(429);
         echo json_encode(['error' => 'Too many requests. Please try again later.']);
         exit();
@@ -384,23 +476,17 @@ try {
         ]
     ];
     
-    // Validate input
-    $errors = validateInput($input, $rules);
+    // Validate and sanitize input (server-side canonical validation)
+    $validation_result = validateInputCanonical($input, $rules);
     
-    if (!empty($errors)) {
+    if (!empty($validation_result['errors'])) {
         http_response_code(400);
-        echo json_encode(['errors' => $errors]);
+        echo json_encode(['errors' => $validation_result['errors']]);
         exit();
     }
     
-    // Sanitize data
-    $sanitized_data = [
-        'firstName' => sanitizeInput($input['firstName'], 'name'),
-        'lastName' => sanitizeInput($input['lastName'], 'name'),
-        'email' => sanitizeInput($input['email'], 'email'),
-        'phone' => sanitizeInput($input['phone'], 'phone'),
-        'message' => sanitizeInput($input['message'], 'text')
-    ];
+    // Use sanitized data
+    $sanitized_data = $validation_result['sanitized'];
     
     // Send email
     if (sendEmail($sanitized_data)) {
@@ -420,16 +506,10 @@ try {
     }
     
 } catch (Exception $e) {
-    logSecurity('Error: ' . $e->getMessage(), $_POST ?? []);
+    logSecurity('Error: ' . $e->getMessage(), ['ip' => $_SERVER['REMOTE_ADDR'] ?? 'unknown']);
     http_response_code(500);
     echo json_encode([
         'error' => 'An error occurred while processing your request. Please try again later.'
     ]);
 }
-
-// Generate new CSRF token for next request
-if ($_SERVER['REQUEST_METHOD'] === 'GET') {
-    echo json_encode(['csrf_token' => generateCSRFToken()]);
-}
 ?>
-

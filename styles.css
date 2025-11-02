@@ -642,6 +642,9 @@ p {
     /* Spring physics transition: stiffness 200, damping 40, mass 1 */
     /* Bouncy spring curve for underdamped system */
     transition-timing-function: cubic-bezier(0.34, 1.56, 0.64, 1) !important;
+    /* Ensure proper initial positioning */
+    display: flex;
+    position: relative;
 }
 
 .servicesSwiper .swiper-slide {
@@ -651,10 +654,25 @@ p {
     height: auto;
     width: 750px;
     /* Spring physics: stiffness 200, damping 40, mass 1 - creates bouncy effect */
-    transition: opacity 0.6s cubic-bezier(0.34, 1.56, 0.64, 1), 
-                transform 0.6s cubic-bezier(0.34, 1.56, 0.64, 1);
+    transition: opacity 0.4s cubic-bezier(0.34, 1.56, 0.64, 1), 
+                transform 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
     opacity: 0.5;
+    /* Ensure slides are properly positioned on initial load */
+    flex-shrink: 0;
+    /* Performance: Use transform for hardware acceleration */
+    transform: translateZ(0);
+    backface-visibility: hidden;
+}
+
+/* Only use will-change on active/visible slides for better performance */
+.servicesSwiper .swiper-slide-active,
+.servicesSwiper .swiper-slide-visible {
     will-change: transform, opacity;
+}
+
+/* Ensure first slide is visible on initial load before Swiper initializes */
+.servicesSwiper .swiper-slide:first-child {
+    opacity: 1;
 }
 
 .servicesSwiper .swiper-slide-active {
@@ -672,10 +690,12 @@ p {
     height: 520px;
     position: relative;
     /* Spring physics animation: stiffness 200, damping 40, mass 1 */
-    transition: transform 0.6s cubic-bezier(0.34, 1.56, 0.64, 1),
-                box-shadow 0.6s cubic-bezier(0.34, 1.56, 0.64, 1),
+    transition: transform 0.4s cubic-bezier(0.34, 1.56, 0.64, 1),
+                box-shadow 0.4s cubic-bezier(0.34, 1.56, 0.64, 1),
                 border-color 0.3s ease;
-    will-change: transform;
+    /* Performance: Hardware acceleration */
+    transform: translateZ(0);
+    backface-visibility: hidden;
 }
 
 .service-card:hover {
@@ -741,15 +761,7 @@ p {
     z-index: 1;
 }
 
-/* Hardware acceleration for smoother animations */
-.servicesSwiper .swiper-slide,
-.service-card {
-    transform: translateZ(0);
-    backface-visibility: hidden;
-    -webkit-backface-visibility: hidden;
-    perspective: 1000px;
-    -webkit-perspective: 1000px;
-}
+/* Hardware acceleration optimized - cards already have translateZ(0) */
 
 /* Navigation arrows - Modern, professional design */
 .services-nav-prev,
@@ -1330,6 +1342,19 @@ p {
 .contact-section {
     background-color: #1C3830;
     padding: 34px 0;
+}
+
+/* Honeypot Field - Hidden from users and bots */
+#honeypot,
+.honeypot-field {
+    position: absolute !important;
+    left: -9999px !important;
+    width: 1px !important;
+    height: 1px !important;
+    opacity: 0 !important;
+    pointer-events: none !important;
+    visibility: hidden !important;
+    display: block !important; /* Keep as block so form still sees it */
 }
 
 /* Form Validation & Error Styles */
@@ -2092,22 +2117,47 @@ p {
     
     .footer-container {
         padding: 0 20px;
+        width: 100%;
+        max-width: 100%;
+        box-sizing: border-box;
     }
     
     .footer-content {
-        grid-template-columns: 1fr;
-        gap: 40px;
+        display: grid !important;
+        grid-template-columns: 1fr !important;
+        gap: 32px;
         margin-bottom: 32px;
+        width: 100%;
+        box-sizing: border-box;
+    }
+    
+    .footer-brand {
+        width: 100%;
+    }
+    
+    .footer-logo .logo-text {
+        font-size: 20px;
     }
     
     .footer-description {
         max-width: 100%;
-        font-size: 16px;
+        font-size: 14px;
+        line-height: 1.5;
+        word-wrap: break-word;
+        overflow-wrap: break-word;
     }
     
     .footer-links-grid {
-        grid-template-columns: 1fr;
-        gap: 32px;
+        display: grid !important;
+        grid-template-columns: 1fr !important;
+        gap: 24px;
+        width: 100%;
+        box-sizing: border-box;
+    }
+    
+    .footer-links-column {
+        width: 100%;
+       
     }
     
     .contact-column {
@@ -2115,16 +2165,36 @@ p {
     }
     
     .footer-links-title {
-        font-size: 17px;
+        font-size: 15px;
+        margin-bottom: 12px;
     }
     
     .footer-link {
-        font-size: 15px;
+        font-size: 14px;
+        word-wrap: break-word;
+        overflow-wrap: break-word;
+        display: inline-block;
+        max-width: 100%;
+        line-height: 1.6;
+    }
+    
+    .footer-links {
+        gap: 10px;
+    }
+    
+    .footer-bottom {
+        width: 100%;
+        padding: 0;
+        margin-top: 24px;
     }
     
     .copyright {
-        font-size: 13px;
+        font-size: 12px;
         text-align: center;
+        word-wrap: break-word;
+        overflow-wrap: break-word;
+        width: 100%;
+        line-height: 1.5;
     }
 }
 
@@ -2466,38 +2536,72 @@ p {
     
     /* Footer */
     .footer {
-        padding: 36px 0 16px;
+        padding: 32px 0 16px;
     }
     
     .footer-container {
         padding: 0 16px;
+        width: 100%;
+        max-width: 100%;
+        box-sizing: border-box;
+    }
+    
+    .footer-content {
+        display: grid !important;
+        grid-template-columns: 1fr !important;
+        gap: 28px;
+        width: 100%;
+        box-sizing: border-box;
+    }
+    
+    .footer-brand {
+        width: 100%;
+    }
+    
+    .footer-logo {
+        width: 100%;
+        flex-wrap: wrap;
     }
     
     .footer-logo .logo-icon {
-        width: 44px;
-        height: 44px;
+        width: 40px;
+        height: 40px;
         left: 0;
         top: 0;
+        flex-shrink: 0;
     }
     
     .footer-logo .logo-icon img {
-        width: 36px;
-        height: 36px;
+        width: 32px;
+        height: 32px;
     }
     
     .footer-logo .logo-text {
-        font-size: 20px;
-        left: 6px;
+        font-size: 18px;
+        left: 4px;
+        word-wrap: break-word;
     }
     
     .footer-description {
-        font-size: 15px;
+        font-size: 13px;
         line-height: 1.5;
+        max-width: 100%;
+        word-wrap: break-word;
+        overflow-wrap: break-word;
+        margin-top: 16px;
     }
     
     .footer-links-grid {
-        grid-template-columns: 1fr;
-        gap: 28px;
+        display: grid !important;
+        grid-template-columns: 1fr !important;
+        gap: 20px;
+        width: 100%;
+        box-sizing: border-box;
+    }
+    
+    .footer-links-column {
+        width: 100%;
+        min-width: 0;
     }
     
     .contact-column {
@@ -2505,20 +2609,40 @@ p {
     }
     
     .footer-links-title {
-        font-size: 16px;
+        font-size: 14px;
+        margin-bottom: 10px;
+        font-weight: 600;
     }
     
     .footer-link {
-        font-size: 14px;
+        font-size: 13px;
+        word-wrap: break-word;
+        overflow-wrap: break-word;
+        display: inline-block;
+        max-width: 100%;
+        line-height: 1.6;
+    }
+    
+    .footer-links {
+        gap: 8px;
     }
     
     .footer-bottom {
         flex-direction: column;
         gap: 8px;
+        width: 100%;
+        padding: 0;
+        margin-top: 20px;
     }
     
     .copyright {
-        font-size: 12px;
+        font-size: 11px;
+        text-align: center;
+        word-wrap: break-word;
+        overflow-wrap: break-word;
+        width: 100%;
+        padding: 0;
+        line-height: 1.5;
     }
     
     /* Buttons */
@@ -2647,9 +2771,10 @@ html {
 }
 
 .logo-text {
-    font-family: 'Hedvig Letters Serif', serif;
+    font-family: 'Inter', sans-serif;
     font-size: 24px;
-    font-weight: 400;
+    font-weight: 700;
+    letter-spacing: 0.02em;
     color: rgba(255, 255, 255, 0.95);
     position: relative;
     left: 13px;
@@ -2719,12 +2844,17 @@ html {
 .footer {
     background-color: #263238;
     padding: 54px 0 24px;
+    width: 100%;
+    overflow-x: hidden;
+    box-sizing: border-box;
 }
 
 .footer-container {
     max-width: 1200px;
     margin: 0 auto;
     padding: 0 25px;
+    width: 100%;
+    box-sizing: border-box;
 }
 
 .footer-content {
@@ -2732,6 +2862,15 @@ html {
     grid-template-columns: 2fr 2fr;
     gap: 95px;
     margin-bottom: 24px;
+    width: 100%;
+    box-sizing: border-box;
+}
+
+/* Ensure footer content stacks on mobile */
+@media (max-width: 768px) {
+    .footer-content {
+        grid-template-columns: 1fr !important;
+    }
 }
 
 .footer-brand {
@@ -2768,9 +2907,10 @@ html {
 }
 
 .footer-logo .logo-text {
-    font-family: 'Hedvig Letters Serif', serif;
+    font-family: 'Inter', sans-serif;
     font-size: 24px;
-    font-weight: 400;
+    font-weight: 700;
+    letter-spacing: 0.02em;
     color: #ffffff;
     position: relative;
     left: 13px;
@@ -2783,6 +2923,8 @@ html {
     line-height: 1.4em;
     color: rgba(255, 255, 255, 0.7);
     max-width: 280px;
+    word-wrap: break-word;
+    overflow-wrap: break-word;
 }
 
 .footer-template {
@@ -2831,6 +2973,8 @@ html {
     display: flex;
     flex-direction: column;
     gap: 20px;
+    width: 100%;
+   
 }
 
 .contact-column {
@@ -2850,6 +2994,9 @@ html {
     display: flex;
     flex-direction: column;
     gap: 14px;
+    width: 100%;
+    margin: 0;
+    padding: 0;
 }
 
 .footer-link {
@@ -2859,6 +3006,10 @@ html {
     font-weight: 500;
     letter-spacing: -0.05em;
     transition: color 0.3s ease;
+    word-wrap: break-word;
+    overflow-wrap: break-word;
+    display: inline-block;
+    max-width: 100%;
 }
 
 .footer-link:hover {
@@ -2869,6 +3020,8 @@ html {
     display: flex;
     align-items: center;
     gap: 12px;
+    width: 100%;
+    box-sizing: border-box;
 }
 
 .copyright {
@@ -2877,6 +3030,9 @@ html {
     letter-spacing: -0.05em;
     color: rgba(255, 255, 255, 0.6);
     margin: 0;
+    word-wrap: break-word;
+    overflow-wrap: break-word;
+    width: 100%;
 }
 
 /* Touch Device Optimizations */

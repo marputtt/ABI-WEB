@@ -5,19 +5,19 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     
     <!-- Security Headers -->
-    <meta http-equiv="X-Content-Type-Options" content="nosniff">
-    <meta http-equiv="X-Frame-Options" content="DENY">
-    <meta http-equiv="X-XSS-Protection" content="1; mode=block">
+    <!-- Note: X-Frame-Options, X-Content-Type-Options, and X-XSS-Protection must be set via HTTP headers in .htaccess, not meta tags -->
     <meta name="referrer" content="strict-origin-when-cross-origin">
     
-    <!-- Content Security Policy -->
+    <!-- Content Security Policy - Synced with .htaccess -->
+    <!-- NOTE: SRI hashes below should be generated using: https://www.srihash.org/ -->
+    <!-- Generate hashes for each CDN resource and update integrity attributes -->
     <meta http-equiv="Content-Security-Policy" content="
         default-src 'self';
-        script-src 'self' 'unsafe-inline' https://cdn.tailwindcss.com https://unpkg.com https://cdn.jsdelivr.net;
+        script-src 'self' https://cdn.tailwindcss.com https://unpkg.com https://cdn.jsdelivr.net;
         style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://cdn.jsdelivr.net;
-        font-src 'self' https://fonts.gstatic.com;
+        font-src 'self' data: https://fonts.gstatic.com;
         img-src 'self' data: https: blob:;
-        connect-src 'self' https://api.yourbackend.com;
+        connect-src 'self' https://api.yourbackend.com ws://127.0.0.1:3001 http://localhost:* ws://localhost:*;
         frame-src 'none';
         object-src 'none';
         base-uri 'self';
@@ -27,17 +27,33 @@
     <title>ABI - Strategic Energy & Resource Solutions Across Indonesia</title>
     
     <!-- External Scripts with SRI (Subresource Integrity) -->
-    <script src="https://cdn.tailwindcss.com" crossorigin="anonymous"></script>
+    <!-- 
+    SECURITY: Generate SRI hashes at https://www.srihash.org/ and add integrity attributes
+    For each CDN resource:
+    1. Copy the URL
+    2. Visit https://www.srihash.org/
+    3. Paste URL and generate SHA-384 hash
+    4. Add integrity="sha384-<hash>" to the tag below
+    
+    NOTE: Tailwind CDN is dynamic - consider replacing with built version for better security
+    Once hashes are generated, uncomment the integrity attributes below
+    -->
+    <script src="https://cdn.tailwindcss.com" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+    <!-- <script src="https://cdn.tailwindcss.com" crossorigin="anonymous" integrity="sha384-REPLACE_WITH_SRI_HASH" referrerpolicy="no-referrer"></script> -->
     <link rel="stylesheet" href="styles.css">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Hedvig+Letters+Serif:wght@400&display=swap" rel="stylesheet">
-    <script defer src="https://unpkg.com/lucide@latest" crossorigin="anonymous"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Hedvig+Letters+Serif:wght@400&display=swap" rel="stylesheet" crossorigin="anonymous">
+    <!-- <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Hedvig+Letters+Serif:wght@400&display=swap" rel="stylesheet" integrity="sha384-REPLACE_WITH_SRI_HASH" crossorigin="anonymous"> -->
+    <script defer src="https://unpkg.com/lucide@latest" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+    <!-- <script defer src="https://unpkg.com/lucide@latest" crossorigin="anonymous" integrity="sha384-REPLACE_WITH_SRI_HASH" referrerpolicy="no-referrer"></script> -->
     
     <!-- Swiper.js CSS -->
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.css" crossorigin="anonymous" />
+    <!-- <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.css" crossorigin="anonymous" integrity="sha384-REPLACE_WITH_SRI_HASH" /> -->
     <!-- Swiper.js JavaScript -->
-    <script src="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.js" crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.js" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+    <!-- <script src="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.js" crossorigin="anonymous" integrity="sha384-REPLACE_WITH_SRI_HASH" referrerpolicy="no-referrer"></script> -->
    
 </head>
 <body>
@@ -50,7 +66,7 @@
                         <div class="logo-icon">
                             <img src="Assets/Screenshot 2025-10-27 at 17.13.56.png" alt="Logo Icon">
                         </div>
-                        <span class="logo-text">ABI GROUP </span>
+                        <span class="logo-text">ABI </span>
                     </a>
                 </div>
                 <div class="nav-menu">
@@ -215,7 +231,7 @@
                                 </div>
                                 <div class="service-card-content">
                                     <h3>Oil & Gas Distribution</h3>
-                                    <p>Through subsidiaries like PT Petrobas Indonesia, PT Putra Perdana Perkasa, and PT Great Rivers Repapesi, ABI handles fuel supply, condensate transport, and offshore SBM maintenance serving Indonesia’s refinery and industrial sectors. </p>
+                                    <p>ABI handles fuel supply, condensate transport, and offshore SBM maintenance serving Indonesia’s refinery and industrial sectors. </p>
                                 </div>
                             </div>
                         </div>
@@ -398,78 +414,23 @@
                 <div class="team-member">
                     <img src="MEMBER/Screenshot 2025-10-27 at 18.27.25.png" alt="Medina Rahma Putri">
                     <h3>Medina Rahma Putri</h3>
-                    <p>Director</p>
+                    
                 </div>
                 <div class="team-member">
                     <img src="MEMBER/Screenshot 2025-10-27 at 18.27.37.png" alt="Teuku Agassi Revano Harsya">
                     <h3>Teuku Agassi Revano Harsya</h3>
-                    <p>Director</p>
+                    
                 </div>
                 <div class="team-member">
                     <img src="MEMBER/Screenshot 2025-10-27 at 18.27.49.png" alt="Yandhika P Sabaruddin">
                     <h3>Yandhika P Sabaruddin</h3>
-                    <p>Chairman</p>
+                    
                 </div>
             </div>
         </div>
     </section>
 
-    <!-- FAQ Section -->
-    <section class="faq-section">
-        <div class="container">
-            <div class="section-header">
-                <div class="section-tag">FAQ</div>
-                <h2 class="section-title">Frequently Asked Questions</h2>
-            </div>
-            <div class="faq-list">
-                <div class="faq-item">
-                    <div class="faq-question">
-                        <h3>What industries does ABI serve?</h3>
-                        <span class="faq-toggle">+</span>
-                    </div>
-                    <div class="faq-answer">
-                        <p>Energy, Oil & Gas, Minerals & Mining, and Renewables.</p>
-                    </div>
-                </div>
-                <div class="faq-item">
-                    <div class="faq-question">
-                        <h3>Where does ABI operate?</h3>
-                        <span class="faq-toggle">+</span>
-                    </div>
-                    <div class="faq-answer">
-                        <p>Across key Indonesian regions — from South Kalimantan to Central and East Java.</p>
-                    </div>
-                </div>
-                <div class="faq-item">
-                    <div class="faq-question">
-                        <h3>What makes ABI different?</h3>
-                        <span class="faq-toggle">+</span>
-                    </div>
-                    <div class="faq-answer">
-                        <p>Strategic policy access, execution speed, and a proven track record across multiple resource sectors.</p>
-                    </div>
-                </div>
-                <div class="faq-item">
-                    <div class="faq-question">
-                        <h3>Is ABI open to partnerships?</h3>
-                        <span class="faq-toggle">+</span>
-                    </div>
-                    <div class="faq-answer">
-                        <p>Yes. ABI actively collaborates with investors, suppliers, and government-linked projects nationwide.</p>
-                    </div>
-                </div>
-                <div class="faq-item">
-                    <div class="faq-question">
-                        <h3>Does ABI operate internationally?</h3>
-                        <span class="faq-toggle">+</span>
-                    </div>
-                    <div class="faq-answer">
-                        <p>Currently focused on Indonesia, with future plans to expand into regional markets through joint ventures.</p>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </section>
+    
 
     <!-- Contact Section -->
     <section id="contact" class="contact-section">
@@ -482,8 +443,18 @@
                         <!-- CSRF Token (will be generated by backend) -->
                         <input type="hidden" name="csrf_token" id="csrfToken" value="">
                         
-                        <!-- Honeypot field for bot protection (hidden from users) -->
-                        <input type="text" name="website" id="honeypot" style="display:none" tabindex="-1" autocomplete="off">
+                        <!-- Honeypot field for bot protection (hidden from users and screen readers) -->
+                        <!-- Styles moved to CSS to comply with CSP -->
+                        <input 
+                            type="text" 
+                            name="website" 
+                            id="honeypot" 
+                            class="honeypot-field"
+                            tabindex="-1" 
+                            autocomplete="off"
+                            aria-hidden="true"
+                            aria-label=""
+                            value="">
                         
                         <div class="form-row">
                             <div class="form-group">
@@ -591,7 +562,7 @@
                         <div class="logo-icon">
                             <img src="Assets/Screenshot 2025-10-27 at 17.13.56.png" alt="ABI Logo">
                         </div>
-                        <span class="logo-text">ABI GROUP</span>
+                        <span class="logo-text">ABI</span>
                     </a>
                     <p class="footer-description">
                         PT. Anugerah Bumikarya Indonesia (ABI) provides integrated energy, oil & gas, and mineral solutions that connect policy, partners, and operations across Indonesia.

@@ -101,20 +101,49 @@ async function fetchCSRFToken() {
     try {
         const response = await fetch(CONFIG.API_ENDPOINT, {
             method: 'GET',
-            credentials: 'same-origin'
+            credentials: 'same-origin',
+            headers: {
+                'Accept': 'application/json'
+            }
         });
         
-        if (response.ok) {
-            const data = await response.json();
+        if (!response.ok) {
+            throw new Error(`HTTP error! status: ${response.status}`);
+        }
+        
+        const contentType = response.headers.get('content-type');
+        if (!contentType || !contentType.includes('application/json')) {
+            const text = await response.text();
+            console.warn('Non-JSON response from API:', text.substring(0, 200));
+            throw new Error('API returned non-JSON response. Make sure PHP is configured correctly.');
+        }
+        
+        const data = await response.json();
+        
+        if (data && data.csrf_token) {
             CONFIG.CSRF_TOKEN = data.csrf_token;
             
             const csrfInput = document.getElementById('csrfToken');
             if (csrfInput) {
                 csrfInput.value = data.csrf_token;
             }
+            console.log('%c✓ CSRF token loaded', 'color: #2E7D32; font-size: 12px;');
+        } else {
+            throw new Error('Invalid CSRF token response format');
         }
     } catch (error) {
-        logError('CSRF Token Fetch Error', error);
+        console.warn('CSRF Token Fetch Error:', error.message);
+        // Log full error details
+        logError('CSRF Token Fetch Error', {
+            message: error.message,
+            details: error.details || error
+        });
+        
+        // Retry after a short delay (useful if server is starting up)
+        setTimeout(() => {
+            console.log('Retrying CSRF token fetch...');
+            fetchCSRFToken();
+        }, 2000);
     }
 }
 
@@ -352,7 +381,12 @@ function initAnimations() {
 }
 
 /**
- * Input Sanitization
+ * Input Sanitization (Client-Side - UX Only)
+ * 
+ * NOTE: This is for user experience only. All security-critical validation
+ * and sanitization happens server-side in api.php via validateInputCanonical().
+ * Client-side sanitization can be bypassed and should never be trusted.
+ * Server-side validation is the authoritative source for security.
  */
 function sanitizeInput(input, type = 'text') {
     if (typeof input !== 'string') return '';
@@ -363,7 +397,7 @@ function sanitizeInput(input, type = 'text') {
     // Trim whitespace
     input = input.trim();
     
-    // Type-specific sanitization
+    // Type-specific sanitization (UX only - server validates)
     switch (type) {
         case 'email':
             return input.toLowerCase().replace(/[^a-z0-9@._-]/gi, '');
@@ -637,6 +671,17 @@ function initServicesSlider() {
         const springCurve = 'cubic-bezier(0.34, 1.56, 0.64, 1)';
         const swipeIndicator = document.querySelector('.swipe-indicator');
         let hasInteracted = false;
+        let isTransitioning = false; // Prevent rapid clicks
+        
+        // Calculate loopedSlides based on actual slide count
+        // For loop mode to work properly with 4 slides, loopedSlides should be 2
+        // Swiper needs at least 2 * loopedSlides slides for seamless looping
+        const slideContainer = document.querySelector('.servicesSwiper .swiper-wrapper');
+        const totalSlides = slideContainer ? slideContainer.querySelectorAll('.swiper-slide').length : 4;
+        // For 4 slides, use loopedSlides: 2 (half the slides)
+        // This ensures proper loop behavior when sliding right
+        const calculatedLoopedSlides = totalSlides >= 4 ? 2 : Math.floor(totalSlides / 2);
+        const shouldLoop = totalSlides >= 3; // Enable loop if we have at least 3 slides
         
         const servicesSwiper = new Swiper('.servicesSwiper', {
             direction: 'horizontal',
@@ -650,7 +695,7 @@ function initServicesSlider() {
             slideToClickedSlide: true,
             initialSlide: 0,
             autoplay: false,
-            speed: 600,
+            speed: 400, // Faster speed for better responsiveness
             cssMode: false,
             resistance: true,
             resistanceRatio: 0.85,
@@ -664,8 +709,10 @@ function initServicesSlider() {
                 sensitivity: 1,
                 releaseOnEdges: false,
             },
-            loop: true,
-            loopedSlides: 4,
+            loop: shouldLoop,
+            loopedSlides: calculatedLoopedSlides,
+            loopAdditionalSlides: calculatedLoopedSlides, // Additional slides to render for smooth loop
+            loopPreventsSliding: false, // Allow sliding even during loop transition
             effect: 'slide',
             freeMode: false,
             longSwipes: true,
@@ -674,6 +721,8 @@ function initServicesSlider() {
             preventClicks: false,
             preventClicksPropagation: false,
             slidesPerGroup: 1,
+            // Prevent double-clicks and rapid clicking
+            preventInteractionOnTransition: true,
             watchSlidesProgress: true,
             normalizeSlideIndex: true,
             roundLengths: true,
@@ -696,18 +745,27 @@ function initServicesSlider() {
             },
             on: {
                 init: function() {
+                    const swiper = this;
                     this.wrapperEl.style.transitionTimingFunction = springCurve;
-                },
-                setTransition: function(swiper, duration) {
-                    swiper.wrapperEl.style.transitionDuration = duration + 'ms';
-                    swiper.wrapperEl.style.transitionTimingFunction = springCurve;
                     
-                    swiper.slides.forEach(slide => {
-                        slide.style.transitionTimingFunction = springCurve;
+                    // Lightweight fix for initial positioning - only if needed
+                    requestAnimationFrame(function() {
+                        // Only fix if there's a visible positioning issue
+                        if (swiper.params.centeredSlides && swiper.activeIndex !== undefined) {
+                            // Single update with instant reposition - minimal overhead
+                            swiper.updateSlidesClasses();
+                        }
                     });
                 },
+                setTransition: function(swiper, duration) {
+                    // Optimize: Only set on wrapper, not individual slides
+                    swiper.wrapperEl.style.transitionDuration = duration + 'ms';
+                    swiper.wrapperEl.style.transitionTimingFunction = springCurve;
+                },
                 slideChange: function() {
-                    this.wrapperEl.style.transitionTimingFunction = springCurve;
+                    const swiper = this;
+                    // Only update timing if needed
+                    swiper.wrapperEl.style.transitionTimingFunction = springCurve;
                     
                     if (!hasInteracted && swipeIndicator) {
                         hasInteracted = true;
@@ -717,6 +775,46 @@ function initServicesSlider() {
                             swipeIndicator.style.display = 'none';
                         }, 500);
                     }
+                },
+                slideChangeTransitionStart: function() {
+                    // Ensure smooth transition when clicking on slides
+                    const swiper = this;
+                    isTransitioning = true; // Lock during transition
+                    swiper.wrapperEl.style.transitionTimingFunction = springCurve;
+                    
+                    // Safety timeout: reset transitioning flag if transition doesn't complete
+                    // This prevents the slideshow from getting stuck
+                    setTimeout(function() {
+                        if (isTransitioning) {
+                            isTransitioning = false;
+                        }
+                    }, swiper.params.speed + 100); // Add small buffer to speed
+                },
+                slideChangeTransitionEnd: function() {
+                    // Fix positioning after click transition - ensures smooth centering
+                    const swiper = this;
+                    isTransitioning = false; // Unlock after transition
+                    
+                    // Only update if needed and after transition completes
+                    if (swiper.params.centeredSlides && swiper.isLocked !== true) {
+                        // Ensure proper centering after click-to-slide
+                        // Use requestAnimationFrame for smoother update
+                        requestAnimationFrame(function() {
+                            swiper.updateSlidesClasses();
+                        });
+                    }
+                },
+                click: function(swiper, event) {
+                    // Prevent clicks during transitions to avoid bugs
+                    // The preventInteractionOnTransition option handles this, but we double-check
+                    if (isTransitioning || swiper.isLocked || swiper.animating) {
+                        return;
+                    }
+                    
+                    // Ensure smooth transition timing for click navigation
+                    // Swiper's slideToClickedSlide handles the actual navigation automatically
+                    // We just ensure the spring curve is applied
+                    swiper.wrapperEl.style.transitionTimingFunction = springCurve;
                 },
                 touchStart: function() {
                     if (!hasInteracted && swipeIndicator) {
