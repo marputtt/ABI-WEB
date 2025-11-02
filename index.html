@@ -4,6 +4,11 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     
+    <!-- Cache Control - Prevent aggressive caching -->
+    <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+    <meta http-equiv="Pragma" content="no-cache">
+    <meta http-equiv="Expires" content="0">
+    
     <!-- Security Headers -->
     <!-- Note: X-Frame-Options, X-Content-Type-Options, and X-XSS-Protection must be set via HTTP headers in .htaccess, not meta tags -->
     <meta name="referrer" content="strict-origin-when-cross-origin">
@@ -40,7 +45,8 @@
     -->
     <script src="https://cdn.tailwindcss.com" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
     <!-- <script src="https://cdn.tailwindcss.com" crossorigin="anonymous" integrity="sha384-REPLACE_WITH_SRI_HASH" referrerpolicy="no-referrer"></script> -->
-    <link rel="stylesheet" href="styles.css">
+    <!-- Version parameter for cache-busting - Update this number when you make changes -->
+    <link rel="stylesheet" href="styles.css?v=2.0.1">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Hedvig+Letters+Serif:wght@400&display=swap" rel="stylesheet" crossorigin="anonymous">
@@ -605,6 +611,7 @@
     </footer>
 
     <!-- Load Secure JavaScript -->
-    <script src="script-secure.js"></script>
+    <!-- Version parameter for cache-busting - Update this number when you make changes -->
+    <script src="script-secure.js?v=2.0.1"></script>
 </body>
 </html>
