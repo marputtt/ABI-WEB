@@ -663,42 +663,54 @@ function initPartnersScroll() {
  */
 function initServicesSlider() {
     try {
+        // Wait for Swiper library to load
         if (typeof Swiper === 'undefined') {
             setTimeout(initServicesSlider, 100);
+            return;
+        }
+        
+        // Check if slider container exists
+        const sliderContainer = document.querySelector('.servicesSwiper');
+        if (!sliderContainer) {
+            console.warn('Services slider container not found');
             return;
         }
         
         const springCurve = 'cubic-bezier(0.34, 1.56, 0.64, 1)';
         const swipeIndicator = document.querySelector('.swipe-indicator');
         let hasInteracted = false;
-        let isTransitioning = false; // Prevent rapid clicks
         
-        // Calculate loopedSlides based on actual slide count
-        // For loop mode to work properly with 4 slides, loopedSlides should be 2
-        // Swiper needs at least 2 * loopedSlides slides for seamless looping
+        // Count total slides (user has manually duplicated slides for smoother looping)
         const slideContainer = document.querySelector('.servicesSwiper .swiper-wrapper');
-        const totalSlides = slideContainer ? slideContainer.querySelectorAll('.swiper-slide').length : 4;
-        // For 4 slides, use loopedSlides: 2 (half the slides)
-        // This ensures proper loop behavior when sliding right
-        const calculatedLoopedSlides = totalSlides >= 4 ? 2 : Math.floor(totalSlides / 2);
-        const shouldLoop = totalSlides >= 3; // Enable loop if we have at least 3 slides
+        const totalSlides = slideContainer ? slideContainer.querySelectorAll('.swiper-slide').length : 8;
+        const uniqueSlides = Math.floor(totalSlides / 2); // User duplicated slides, so unique count is half
         
+        // Since slides are already duplicated in HTML, we have two options:
+        // Option 1: Disable Swiper loop and manually handle seamless scrolling
+        // Option 2: Enable Swiper loop with minimal loopedSlides (since duplicates already exist)
+        // We'll use Option 2 but with reduced loopedSlides since duplicates already exist
+        
+        // Loop configuration for different screen sizes
+        // With pre-duplicated slides, we need fewer loopedSlides
+        // For 'auto' slidesPerView: Since slides are already duplicated, use smaller loopedSlides
+        // For fixed slidesPerView (mobile): Use minimal loopedSlides
+        const desktopLoopedSlides = 2; // Reduced since slides are pre-duplicated
+        const mobileLoopedSlides = 1; // Minimal since slides are pre-duplicated
+        
+        // Initialize Swiper
         const servicesSwiper = new Swiper('.servicesSwiper', {
+            // Basic settings
             direction: 'horizontal',
             slidesPerView: 'auto',
             centeredSlides: true,
             centeredSlidesBounds: true,
             spaceBetween: 30,
-            scrollbar: false,
+            speed: 500,
+            
+            // Navigation & interaction
             allowTouchMove: true,
             grabCursor: true,
             slideToClickedSlide: true,
-            initialSlide: 0,
-            autoplay: false,
-            speed: 400, // Faster speed for better responsiveness
-            cssMode: false,
-            resistance: true,
-            resistanceRatio: 0.85,
             keyboard: {
                 enabled: true,
                 onlyInViewport: true,
@@ -707,130 +719,181 @@ function initServicesSlider() {
                 enabled: true,
                 forceToAxis: true,
                 sensitivity: 1,
-                releaseOnEdges: false,
             },
-            loop: shouldLoop,
-            loopedSlides: calculatedLoopedSlides,
-            loopAdditionalSlides: calculatedLoopedSlides, // Additional slides to render for smooth loop
-            loopPreventsSliding: false, // Allow sliding even during loop transition
+            
+            // Loop configuration - enabled for all breakpoints
+            loop: true,
+            loopedSlides: desktopLoopedSlides,
+            loopAdditionalSlides: desktopLoopedSlides,
+            
+            // Effects & behavior
             effect: 'slide',
             freeMode: false,
+            resistance: true,
+            resistanceRatio: 0.85,
             longSwipes: true,
             longSwipesRatio: 0.3,
             longSwipesMs: 300,
-            preventClicks: false,
-            preventClicksPropagation: false,
-            slidesPerGroup: 1,
-            // Prevent double-clicks and rapid clicking
             preventInteractionOnTransition: true,
             watchSlidesProgress: true,
             normalizeSlideIndex: true,
             roundLengths: true,
+            
+            // Responsive breakpoints
             breakpoints: {
                 320: {
                     slidesPerView: 1,
                     spaceBetween: 20,
-                    centeredSlides: true
+                    centeredSlides: true,
+                    loop: true,
+                    loopedSlides: mobileLoopedSlides,
+                    loopAdditionalSlides: mobileLoopedSlides
                 },
                 768: {
                     slidesPerView: 'auto',
                     spaceBetween: 25,
-                    centeredSlides: true
+                    centeredSlides: true,
+                    loop: true,
+                    loopedSlides: desktopLoopedSlides,
+                    loopAdditionalSlides: desktopLoopedSlides
                 },
                 1024: {
                     slidesPerView: 'auto',
                     spaceBetween: 30,
-                    centeredSlides: true
+                    centeredSlides: true,
+                    loop: true,
+                    loopedSlides: desktopLoopedSlides,
+                    loopAdditionalSlides: desktopLoopedSlides
                 }
             },
+            
+            // Event handlers
             on: {
                 init: function() {
                     const swiper = this;
-                    this.wrapperEl.style.transitionTimingFunction = springCurve;
+                    swiper.wrapperEl.style.transitionTimingFunction = springCurve;
                     
-                    // Lightweight fix for initial positioning - only if needed
+                    // Ensure proper initial positioning with loop
+                    // Since slides are pre-duplicated, start at first slide (not in duplicate region)
                     requestAnimationFrame(function() {
-                        // Only fix if there's a visible positioning issue
-                        if (swiper.params.centeredSlides && swiper.activeIndex !== undefined) {
-                            // Single update with instant reposition - minimal overhead
-                            swiper.updateSlidesClasses();
+                        if (swiper.params.centeredSlides) {
+                            // Ensure loop is properly initialized
+                            if (swiper.params.loop) {
+                                swiper.updateSlidesClasses();
+                                swiper.update();
+                                // Start at the first unique slide (index 0)
+                                // slideToLoop will handle positioning correctly with pre-duplicated slides
+                                requestAnimationFrame(function() {
+                                    if (swiper.slideToLoop) {
+                                        swiper.slideToLoop(0, 0);
+                                    } else {
+                                        // Fallback: ensure we're at first slide
+                                        swiper.slideTo(0, 0);
+                                    }
+                                });
+                            } else {
+                                swiper.updateSlidesClasses();
+                                swiper.update();
+                                // Start at first slide
+                                swiper.slideTo(0, 0);
+                            }
                         }
                     });
                 },
+                
+                breakpoint: function() {
+                    const swiper = this;
+                    // Handle loop properly when breakpoint changes
+                    requestAnimationFrame(function() {
+                        if (swiper.params.loop) {
+                            // Recreate loop with new settings
+                            try {
+                                swiper.loopDestroy();
+                                swiper.loopCreate();
+                                swiper.update();
+                            } catch (e) {
+                                console.warn('Loop recreation failed:', e);
+                                // Fallback: just update
+                                swiper.update();
+                            }
+                        } else {
+                            swiper.update();
+                        }
+                    });
+                },
+                
                 setTransition: function(swiper, duration) {
-                    // Optimize: Only set on wrapper, not individual slides
                     swiper.wrapperEl.style.transitionDuration = duration + 'ms';
                     swiper.wrapperEl.style.transitionTimingFunction = springCurve;
                 },
+                
                 slideChange: function() {
                     const swiper = this;
-                    // Only update timing if needed
                     swiper.wrapperEl.style.transitionTimingFunction = springCurve;
                     
+                    // Hide swipe indicator after first interaction
                     if (!hasInteracted && swipeIndicator) {
                         hasInteracted = true;
                         swipeIndicator.style.opacity = '0';
                         swipeIndicator.style.transition = 'opacity 0.5s ease';
                         setTimeout(() => {
-                            swipeIndicator.style.display = 'none';
+                            if (swipeIndicator) {
+                                swipeIndicator.style.display = 'none';
+                            }
                         }, 500);
                     }
                 },
-                slideChangeTransitionStart: function() {
-                    // Ensure smooth transition when clicking on slides
-                    const swiper = this;
-                    isTransitioning = true; // Lock during transition
-                    swiper.wrapperEl.style.transitionTimingFunction = springCurve;
-                    
-                    // Safety timeout: reset transitioning flag if transition doesn't complete
-                    // This prevents the slideshow from getting stuck
-                    setTimeout(function() {
-                        if (isTransitioning) {
-                            isTransitioning = false;
-                        }
-                    }, swiper.params.speed + 100); // Add small buffer to speed
-                },
+                
                 slideChangeTransitionEnd: function() {
-                    // Fix positioning after click transition - ensures smooth centering
                     const swiper = this;
-                    isTransitioning = false; // Unlock after transition
                     
-                    // Only update if needed and after transition completes
-                    if (swiper.params.centeredSlides && swiper.isLocked !== true) {
-                        // Ensure proper centering after click-to-slide
-                        // Use requestAnimationFrame for smoother update
+                    // Handle seamless looping with pre-duplicated slides
+                    // Swiper's loop mode will handle transitions automatically with pre-duplicated slides
+                    // The manual duplicates in HTML make the loop even smoother
+                    swiper.updateSlidesClasses();
+                    
+                    // Ensure proper centering after transition
+                    if (swiper.params.centeredSlides && !swiper.isLocked) {
                         requestAnimationFrame(function() {
                             swiper.updateSlidesClasses();
                         });
                     }
                 },
-                click: function(swiper, event) {
-                    // Prevent clicks during transitions to avoid bugs
-                    // The preventInteractionOnTransition option handles this, but we double-check
-                    if (isTransitioning || swiper.isLocked || swiper.animating) {
-                        return;
-                    }
-                    
-                    // Ensure smooth transition timing for click navigation
-                    // Swiper's slideToClickedSlide handles the actual navigation automatically
-                    // We just ensure the spring curve is applied
+                
+                slideChangeTransitionStart: function() {
+                    const swiper = this;
+                    // Apply spring curve during transition
                     swiper.wrapperEl.style.transitionTimingFunction = springCurve;
                 },
+                
                 touchStart: function() {
                     if (!hasInteracted && swipeIndicator) {
                         hasInteracted = true;
                         swipeIndicator.style.opacity = '0';
                         swipeIndicator.style.transition = 'opacity 0.5s ease';
                         setTimeout(() => {
-                            swipeIndicator.style.display = 'none';
+                            if (swipeIndicator) {
+                                swipeIndicator.style.display = 'none';
+                            }
                         }, 500);
                     }
+                },
+                
+                resize: function() {
+                    const swiper = this;
+                    swiper.update();
                 }
             }
         });
         
+        console.log('%c✓ Services slider initialized', 'color: #2E7D32; font-size: 12px;');
+        
     } catch (error) {
-        logError('Services Slider Error', error);
+        logError('Services Slider Error', {
+            message: error.message,
+            stack: error.stack
+        });
+        console.error('Services slider initialization failed:', error);
     }
 }
 

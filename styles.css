@@ -647,6 +647,8 @@ p {
     position: relative;
 }
 
+/* Swiper slides - supports duplicated slides for seamless looping
+   Note: Slides are manually duplicated in HTML (8 total = 4 unique × 2) */
 .servicesSwiper .swiper-slide {
     display: flex;
     align-items: center;
